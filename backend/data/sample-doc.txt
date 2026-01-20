@@ -1,0 +1,9 @@
+Authentication:
+The API uses Bearer token authentication.
+Include the Authorization header with your API key.
+
+Rate Limiting:
+Each user is limited to 100 requests per minute.
+
+Errors:
+The API returns standard HTTP status codes.

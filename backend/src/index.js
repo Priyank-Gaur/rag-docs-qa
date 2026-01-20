@@ -1,12 +1,14 @@
+const {readDocument}=require("./utils/readDoc");
 const express=require("express");
 
 const app=express();
 app.use(express.json());
 
-app.get("/",(req,res)=>{
-  res.send("RAG backend running");
+app.get("/doc",(req,res)=>{
+  const text=readDocument();
+  res.send(text);
 });
 
-app.listen(5000,()=>{
-  console.log("Server running on port 5000");
+app.listen(3000,()=>{
+  console.log("Server running on port 3000");
 });
