@@ -5,12 +5,13 @@ const {generateEmbedding}=require("./utils/embeddings");
 const {addEmbedding,getAllEmbeddings}=require("./utils/vectorStore");
 const {cosineSimilarity}=require("./utils/similarity");
 const {rephraseAnswer}=require("./utils/answerGenerator");
-
-
+const cors=require("cors");
 const express=require("express");
+
 
 const app=express();
 app.use(express.json());
+app.use(cors());
 
 app.get("/doc",(req,res)=>{
   const text=readDocument();
@@ -112,7 +113,7 @@ app.get("/ask",async(req,res)=>{
   const uniqueChunks=[...new Set(topResults.map(r=>r.text))];
 
   const response=rephraseAnswer(uniqueChunks,q);
-  
+
   res.json(response);
 });
 
