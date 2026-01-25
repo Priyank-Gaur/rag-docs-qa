@@ -96,7 +96,11 @@ app.get("/ask",async(req,res)=>{
 
   scored.sort((a,b)=>b.score-a.score);
 
-  const topResults=scored.slice(0,2);
+  const SIMILARITY_THRESHOLD=0.6;
+
+  const topResults=scored
+    .filter(item=>item.score>=SIMILARITY_THRESHOLD)
+    .slice(0,2);
 
   const response=generateAnswer(topResults);
 
