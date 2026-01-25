@@ -97,10 +97,18 @@ app.get("/ask",async(req,res)=>{
   scored.sort((a,b)=>b.score-a.score);
 
   const SIMILARITY_THRESHOLD=0.5;
+  const TOP_K=2;
 
-  const topResults=scored
-    .filter(item=>item.score>=SIMILARITY_THRESHOLD)
-    .slice(0,2);
+  let topResults=scored.filter(
+    item=>item.score>=SIMILARITY_THRESHOLD
+  );
+
+  if(topResults.length===0){
+    topResults=scored.slice(0,TOP_K);
+  }else{
+    topResults=topResults.slice(0,TOP_K);
+  }
+
 
   const response=generateAnswer(topResults);
 
