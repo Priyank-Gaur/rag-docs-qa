@@ -2,6 +2,7 @@ const {readDocument}=require("./utils/readDoc");
 const {chunkText}=require("./utils/chunker");
 const {keywordSearch}=require("./utils/search");
 const {generateEmbedding}=require("./utils/embeddings");
+const {addEmbedding,getAllEmbeddings}=require("./utils/vectorStore");
 
 
 
@@ -34,6 +35,21 @@ app.get("/embed-test",async(req,res)=>{
   res.json({
     length:vec.length,
     sample:vec.slice(0,5)
+  });
+});
+
+app.get("/index-doc",async(req,res)=>{
+  const text=readDocument();
+  const chunks=chunkText(text);
+
+  for(const chunk of chunks){
+    const embedding=await generateEmbedding(chunk);
+    addEmbedding(chunk,embedding);
+  }
+
+  res.json({
+    message:"Document indexed",
+    chunks:chunks.length
   });
 });
 
