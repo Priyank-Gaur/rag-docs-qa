@@ -3,8 +3,7 @@ const {chunkText}=require("./utils/chunker");
 const {keywordSearch}=require("./utils/search");
 const {generateEmbedding}=require("./utils/embeddings");
 const {addEmbedding,getAllEmbeddings}=require("./utils/vectorStore");
-
-
+const {cosineSimilarity}=require("./utils/similarity");
 
 const express=require("express");
 
@@ -52,6 +51,27 @@ app.get("/index-doc",async(req,res)=>{
     chunks:chunks.length
   });
 });
+
+
+app.get("/semantic-search",async(req,res)=>{
+  const {q}=req.query;
+  if(!q){
+    return res.json([]);
+  }
+
+  const queryEmbedding=await generateEmbedding(q);
+  const stored=getAllEmbeddings();
+
+  const scored=stored.map(item=>({
+    text:item.text,
+    score:cosineSimilarity(queryEmbedding,item.embedding)
+  }));
+
+  scored.sort((a,b)=>b.score-a.score);
+
+  res.json(scored.slice(0,3));
+});
+
 
 
 
