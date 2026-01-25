@@ -4,6 +4,8 @@ const {keywordSearch}=require("./utils/search");
 const {generateEmbedding}=require("./utils/embeddings");
 const {addEmbedding,getAllEmbeddings}=require("./utils/vectorStore");
 const {cosineSimilarity}=require("./utils/similarity");
+const {generateAnswer}=require("./utils/answerGenerator");
+
 
 const express=require("express");
 
@@ -70,6 +72,35 @@ app.get("/semantic-search",async(req,res)=>{
   scored.sort((a,b)=>b.score-a.score);
 
   res.json(scored.slice(0,3));
+});
+
+
+
+app.get("/ask",async(req,res)=>{
+  const {q}=req.query;
+
+  if(!q){
+    return res.json({
+      answer:"Please provide a question.",
+      sources:[]
+    });
+  }
+
+  const queryEmbedding=await generateEmbedding(q);
+  const stored=getAllEmbeddings();
+
+  const scored=stored.map(item=>({
+    text:item.text,
+    score:cosineSimilarity(queryEmbedding,item.embedding)
+  }));
+
+  scored.sort((a,b)=>b.score-a.score);
+
+  const topResults=scored.slice(0,2);
+
+  const response=generateAnswer(topResults);
+
+  res.json(response);
 });
 
 
