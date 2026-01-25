@@ -4,7 +4,7 @@ const {keywordSearch}=require("./utils/search");
 const {generateEmbedding}=require("./utils/embeddings");
 const {addEmbedding,getAllEmbeddings}=require("./utils/vectorStore");
 const {cosineSimilarity}=require("./utils/similarity");
-const {generateAnswer}=require("./utils/answerGenerator");
+const {rephraseAnswer}=require("./utils/answerGenerator");
 
 
 const express=require("express");
@@ -109,9 +109,10 @@ app.get("/ask",async(req,res)=>{
     topResults=topResults.slice(0,TOP_K);
   }
 
+  const uniqueChunks=[...new Set(topResults.map(r=>r.text))];
 
-  const response=generateAnswer(topResults);
-
+  const response=rephraseAnswer(uniqueChunks,q);
+  
   res.json(response);
 });
 

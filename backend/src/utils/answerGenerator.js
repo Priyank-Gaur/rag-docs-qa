@@ -1,17 +1,19 @@
-function generateAnswer(results){
-  if(results.length===0){
+function rephraseAnswer(chunks,question){
+  if(chunks.length===0){
     return {
       answer:"I could not find this information in the provided documentation.",
       sources:[]
     };
   }
 
-  const uniqueTexts=[...new Set(results.map(r=>r.text))];
+  const mainChunk=chunks[0];
+
+  let answer=`Based on the documentation:\n\n${mainChunk}`;
 
   return {
-    answer:uniqueTexts.join("\n\n"),
-    sources:uniqueTexts
+    answer,
+    sources:chunks
   };
 }
 
-module.exports={generateAnswer};
+module.exports={rephraseAnswer};
