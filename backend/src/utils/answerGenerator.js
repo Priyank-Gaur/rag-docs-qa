@@ -6,11 +6,11 @@ function generateAnswer(results){
     };
   }
 
-  const answerText=results.map(r=>r.text).join("\n\n");
+  const uniqueTexts=[...new Set(results.map(r=>r.text))];
 
   return {
-    answer:answerText,
-    sources:results.map(r=>r.text)
+    answer:uniqueTexts.join("\n\n"),
+    sources:uniqueTexts
   };
 }
 
