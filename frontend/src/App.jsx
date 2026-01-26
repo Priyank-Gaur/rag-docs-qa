@@ -1,12 +1,38 @@
 import { useState } from "react";
-import { askQuestion } from "./api";
+import { askQuestion, ingestUrl } from "./api";
 
 function App() {
+  const [url, setUrl] = useState("");
+  const [ingesting, setIngesting] = useState(false);
+  const [ingestStatus, setIngestStatus] = useState("");
+
   const [question, setQuestion] = useState("");
   const [answer, setAnswer] = useState("");
   const [sources, setSources] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+
+  async function handleIngest(e) {
+    e.preventDefault();
+    if (!url) return;
+
+    setIngesting(true);
+    setIngestStatus("Scraping and indexing...");
+    setError("");
+    setAnswer("");
+    setSources([]);
+
+    try {
+      const data = await ingestUrl(url);
+      setIngestStatus(`Success! indexed ${data.chunks} chunks.`);
+    } catch (err) {
+      console.error(err);
+      setError(err.message);
+      setIngestStatus("");
+    } finally {
+      setIngesting(false);
+    }
+  }
 
   async function handleAsk(e) {
     if (e) e.preventDefault();
@@ -39,7 +65,33 @@ function App() {
       </header>
 
       <main>
+        {/* Ingestion Section */}
+        <section className="glass-card" style={{ marginBottom: "2rem" }}>
+          <h2 style={{ fontSize: "1.5rem", marginBottom: "1rem" }}>1. Add Documentation</h2>
+          <form onSubmit={handleIngest}>
+            <div className="input-group">
+              <input
+                type="text"
+                value={url}
+                onChange={(e) => setUrl(e.target.value)}
+                placeholder="Enter documentation URL..."
+                disabled={ingesting || loading}
+              />
+              <button type="submit" className="btn-primary" disabled={ingesting || loading}>
+                {ingesting ? <div className="loading-spinner" /> : "Load URL"}
+              </button>
+            </div>
+            {ingestStatus && (
+               <div style={{ marginTop: "1rem", color: "var(--color-secondary)" }}>
+                 {ingestStatus}
+               </div>
+            )}
+          </form>
+        </section>
+
+        {/* Q&A Section */}
         <section className="glass-card">
+          <h2 style={{ fontSize: "1.5rem", marginBottom: "1rem" }}>2. Ask Questions</h2>
           <form onSubmit={handleAsk}>
             <div className="input-group">
               <input
@@ -47,9 +99,9 @@ function App() {
                 value={question}
                 onChange={(e) => setQuestion(e.target.value)}
                 placeholder="Ask a question about the documentation..."
-                disabled={loading}
+                disabled={loading || ingesting}
               />
-              <button type="submit" className="btn-primary" disabled={loading}>
+              <button type="submit" className="btn-primary" disabled={loading || ingesting}>
                 {loading ? <div className="loading-spinner" /> : "Ask AI"}
               </button>
             </div>
