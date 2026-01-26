@@ -6,7 +6,7 @@ function chunkText(text, chunkSize = 500, overlap = 100) {
   
   for (let i = 0; i < words.length; i += (chunkSize - overlap)) {
     const chunk = words.slice(i, i + chunkSize).join(" ");
-    if (chunk.length > 50) { // Filter out tiny chunks
+    if (chunk.length > 50) {
       chunks.push(chunk);
     }
   }
