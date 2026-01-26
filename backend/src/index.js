@@ -1,8 +1,10 @@
+require("dotenv").config();
 const {readDocument}=require("./utils/readDoc");
 const {chunkText}=require("./utils/chunker");
 const {keywordSearch}=require("./utils/search");
 const {generateEmbedding}=require("./utils/embeddings");
-const {addEmbedding,getAllEmbeddings}=require("./utils/vectorStore");
+const {addEmbedding,getAllEmbeddings,resetStore}=require("./utils/vectorStore");
+const {scrapeUrl}=require("./utils/scraper");
 const {cosineSimilarity}=require("./utils/similarity");
 const {rephraseAnswer}=require("./utils/answerGenerator");
 const cors=require("cors");
@@ -55,6 +57,45 @@ app.get("/index-doc",async(req,res)=>{
   });
 });
 
+app.post("/ingest", async (req, res) => {
+  const { url } = req.body;
+
+  if (!url) {
+    return res.status(400).json({ error: "URL is required" });
+  }
+
+  try {
+    // 1. Reset the store
+    resetStore();
+
+    // 2. Scrape the URL
+    // console.log(`Scraping ${url}...`);
+    const text = await scrapeUrl(url);
+
+    if (!text) {
+      return res.status(400).json({ error: "No content found at URL" });
+    }
+
+    // 3. Chunk the text
+    const chunks = chunkText(text);
+
+    // 4. Generate embeddings and index
+    for (const chunk of chunks) {
+      const embedding = await generateEmbedding(chunk);
+      addEmbedding(chunk, embedding);
+    }
+
+    res.json({
+      message: "Ingestion and indexing complete",
+      chunks: chunks.length
+    });
+
+  } catch (error) {
+    console.error("Ingestion failed:", error);
+    res.status(500).json({ error: "Ingestion failed: " + error.message });
+  }
+});
+
 
 app.get("/semantic-search",async(req,res)=>{
   const {q}=req.query;
@@ -97,8 +138,8 @@ app.get("/ask",async(req,res)=>{
 
   scored.sort((a,b)=>b.score-a.score);
 
-  const SIMILARITY_THRESHOLD=0.5;
-  const TOP_K=2;
+  const SIMILARITY_THRESHOLD=0.25;
+  const TOP_K=5;
 
   let topResults=scored.filter(
     item=>item.score>=SIMILARITY_THRESHOLD
@@ -112,7 +153,7 @@ app.get("/ask",async(req,res)=>{
 
   const uniqueChunks=[...new Set(topResults.map(r=>r.text))];
 
-  const response=rephraseAnswer(uniqueChunks,q);
+  const response=await rephraseAnswer(uniqueChunks,q);
 
   res.json(response);
 });
