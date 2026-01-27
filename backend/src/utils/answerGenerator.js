@@ -1,7 +1,6 @@
 const Groq = require("groq-sdk");
 require('dotenv').config();
 
-// Global instance variable, init lazily
 let groq = null;
 
 async function rephraseAnswer(chunks, question) {

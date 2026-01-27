@@ -2,10 +2,8 @@ let extractor = null;
 
 async function loadModel() {
   if (!extractor) {
-    // Dynamic import to handle ES Module compatibility in CommonJS environment
     const { pipeline, env } = await import("@xenova/transformers");
     
-    // Configure cache for Vercel
     env.cacheDir = '/tmp/.cache';
     env.allowLocalModels = false;
 
