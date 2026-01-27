@@ -1,12 +1,14 @@
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:3000";
+
 export async function askQuestion(question){
   const res=await fetch(
-    `http://localhost:3000/ask?q=${encodeURIComponent(question)}`
+    `${API_BASE_URL}/ask?q=${encodeURIComponent(question)}`
   );
   return res.json();
 }
 
 export async function ingestUrl(url) {
-  const res = await fetch("http://localhost:3000/ingest", {
+  const res = await fetch(`${API_BASE_URL}/ingest`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",

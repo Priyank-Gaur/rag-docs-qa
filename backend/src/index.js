@@ -15,6 +15,10 @@ const app=express();
 app.use(express.json());
 app.use(cors());
 
+app.get("/",(req,res)=>{
+  res.send("API is running");
+})
+
 app.get("/doc",(req,res)=>{
   const text=readDocument();
   res.send(text);
@@ -65,21 +69,16 @@ app.post("/ingest", async (req, res) => {
   }
 
   try {
-    // 1. Reset the store
     resetStore();
 
-    // 2. Scrape the URL
-    // console.log(`Scraping ${url}...`);
     const text = await scrapeUrl(url);
 
     if (!text) {
       return res.status(400).json({ error: "No content found at URL" });
     }
 
-    // 3. Chunk the text
     const chunks = chunkText(text);
 
-    // 4. Generate embeddings and index
     for (const chunk of chunks) {
       const embedding = await generateEmbedding(chunk);
       addEmbedding(chunk, embedding);
