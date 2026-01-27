@@ -1,8 +1,9 @@
-const { GoogleGenerativeAI } = require("@google/generative-ai");
+const Groq = require("groq-sdk");
 require('dotenv').config();
 
-
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || "");
+const groq = new Groq({
+    apiKey: process.env.GROQ_API_KEY
+});
 
 async function rephraseAnswer(chunks, question) {
   if (chunks.length === 0) {
@@ -29,13 +30,21 @@ ${question}
 Answer:`;
 
   try {
-    if (!process.env.GEMINI_API_KEY) {
-      throw new Error("Missing GEMINI_API_KEY");
+    if (!process.env.GROQ_API_KEY) {
+      throw new Error("Missing GROQ_API_KEY");
     }
 
-    const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" }); 
-    const result = await model.generateContent(prompt);
-    const answer = result.response.text();
+        const completion = await groq.chat.completions.create({
+        messages: [
+            {
+                role: "user",
+                content: prompt
+            }
+        ],
+        model: "llama-3.3-70b-versatile",
+    });
+
+    const answer = completion.choices[0]?.message?.content || "";
 
     return {
       answer,
