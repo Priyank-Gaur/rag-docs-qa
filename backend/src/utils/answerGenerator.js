@@ -1,9 +1,8 @@
 const Groq = require("groq-sdk");
 require('dotenv').config();
 
-const groq = new Groq({
-    apiKey: process.env.GROQ_API_KEY
-});
+// Global instance variable, init lazily
+let groq = null;
 
 async function rephraseAnswer(chunks, question) {
   if (chunks.length === 0) {
@@ -30,11 +29,16 @@ ${question}
 Answer:`;
 
   try {
-    if (!process.env.GROQ_API_KEY) {
-      throw new Error("Missing GROQ_API_KEY");
+    const apiKey = process.env.GROQ_API_KEY;
+    if (!apiKey) {
+      throw new Error("Missing GROQ_API_KEY environment variable");
     }
 
-        const completion = await groq.chat.completions.create({
+    if (!groq) {
+      groq = new Groq({ apiKey });
+    }
+
+    const completion = await groq.chat.completions.create({
         messages: [
             {
                 role: "user",
@@ -58,6 +62,8 @@ Answer:`;
       userMessage = "Rate limit exceeded (Too Many Requests)";
     } else if (error.message.includes("404")) {
       userMessage = "Model not found";
+    } else if (error.message.includes("Missing GROQ_API_KEY")) {
+      userMessage = "Configuration Error: Missing API Key";
     }
 
     const mainChunk = chunks[0];
