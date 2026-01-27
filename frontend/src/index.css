@@ -407,3 +407,13 @@ a:hover {
     padding: 1.5rem;
   }
 }
+
+.footer {
+  background: var(--bg-surface);
+  border-top: 1px solid var(--border);
+  padding: 1.5rem;
+  text-align: center;
+  width: 100%;
+  color: var(--text-dim);
+  font-size: 0.9rem;
+}

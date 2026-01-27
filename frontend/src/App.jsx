@@ -66,6 +66,7 @@ function App() {
   }
 
   return (
+    <>
     <div className="container">
       <header className="header">
         <h1>DocuMind AI</h1>
@@ -173,6 +174,10 @@ function App() {
         )}
       </main>
     </div>
+      <footer className="footer">
+        <p>&copy; {new Date().getFullYear()} Priyank Gaur. All rights reserved.</p>
+      </footer>
+    </>
   );
 }
 
