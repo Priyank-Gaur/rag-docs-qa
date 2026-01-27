@@ -74,7 +74,6 @@ function App() {
       </header>
 
       <main style={{ width: '100%', display: 'flex', flexDirection: 'column', gap: '2rem' }}>
-        {/* Ingestion Section */}
         <section className="glass-panel">
           <div className="section-title">
             <Database size={20} />
@@ -113,7 +112,6 @@ function App() {
           </form>
         </section>
 
-        {/* Q&A Section */}
         <section className="glass-panel">
         <div className="section-title">
             <MessageSquare size={20} />

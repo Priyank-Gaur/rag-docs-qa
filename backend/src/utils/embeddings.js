@@ -1,4 +1,7 @@
-const { pipeline } = require("@xenova/transformers");
+const { pipeline, env } = require("@xenova/transformers");
+
+env.cacheDir = '/tmp/.cache';
+env.allowLocalModels = false;
 
 let extractor=null;
 
