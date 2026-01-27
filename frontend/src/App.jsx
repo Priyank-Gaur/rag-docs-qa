@@ -1,5 +1,15 @@
 import { useState } from "react";
 import { askQuestion, ingestUrl } from "./api";
+import ReactMarkdown from 'react-markdown';
+import { 
+  Search, 
+  Database, 
+  MessageSquare, 
+  Loader2, 
+  Sparkles, 
+  ExternalLink, 
+  AlertCircle 
+} from "lucide-react";
 
 function App() {
   const [url, setUrl] = useState("");
@@ -57,81 +67,105 @@ function App() {
 
   return (
     <div className="container">
-      <header style={{ marginBottom: "3rem", textAlign: "center" }}>
+      <header className="header">
         <h1>DocuMind AI</h1>
-        <p style={{ color: "var(--color-text-muted)", fontSize: "1.2rem", marginTop: "0.5rem" }}>
-          Intelligent documentation analysis and Q&A
-        </p>
+        <p>Intelligent documentation analysis and Q&A powered by Groq</p>
       </header>
 
-      <main>
+      <main style={{ width: '100%', display: 'flex', flexDirection: 'column', gap: '2rem' }}>
         {/* Ingestion Section */}
-        <section className="glass-card" style={{ marginBottom: "2rem" }}>
-          <h2 style={{ fontSize: "1.5rem", marginBottom: "1rem" }}>1. Add Documentation</h2>
+        <section className="glass-panel">
+          <div className="section-title">
+            <Database size={20} />
+            <span>Add Documentation</span>
+          </div>
+          
           <form onSubmit={handleIngest}>
-            <div className="input-group">
+            <div className="input-wrapper">
               <input
+                className="input-field"
                 type="text"
                 value={url}
                 onChange={(e) => setUrl(e.target.value)}
                 placeholder="Enter documentation URL..."
                 disabled={ingesting || loading}
               />
-              <button type="submit" className="btn-primary" disabled={ingesting || loading}>
-                {ingesting ? <div className="loading-spinner" /> : "Load URL"}
+              <button 
+                type="submit" 
+                className="btn-icon" 
+                disabled={ingesting || loading || !url}
+                title="Load URL"
+              >
+                {ingesting ? <Loader2 className="spinner" /> : <Sparkles size={20} />}
               </button>
             </div>
             {ingestStatus && (
-               <div style={{ marginTop: "1rem", color: "var(--color-secondary)" }}>
-                 {ingestStatus}
+              <div className="status-msg status-success">
+                 <Sparkles size={16} /> {ingestStatus}
+              </div>
+            )}
+            {error && ingestStatus === "" && !answer && (
+               <div className="status-msg status-error">
+                  <AlertCircle size={16} /> {error}
                </div>
             )}
           </form>
         </section>
 
         {/* Q&A Section */}
-        <section className="glass-card">
-          <h2 style={{ fontSize: "1.5rem", marginBottom: "1rem" }}>2. Ask Questions</h2>
+        <section className="glass-panel">
+        <div className="section-title">
+            <MessageSquare size={20} />
+            <span>Ask Questions</span>
+          </div>
           <form onSubmit={handleAsk}>
-            <div className="input-group">
+            <div className="input-wrapper">
               <input
+                className="input-field"
                 type="text"
                 value={question}
                 onChange={(e) => setQuestion(e.target.value)}
                 placeholder="Ask a question about the documentation..."
                 disabled={loading || ingesting}
               />
-              <button type="submit" className="btn-primary" disabled={loading || ingesting}>
-                {loading ? <div className="loading-spinner" /> : "Ask AI"}
+              <button 
+                type="submit" 
+                className="btn-icon" 
+                disabled={loading || ingesting || !question}
+                title="Ask AI"
+              >
+                {loading ? <Loader2 className="spinner" /> : <Search size={20} />}
               </button>
             </div>
           </form>
           
-          {error && (
-             <div style={{ marginTop: "1.5rem", color: "var(--color-accent)", textAlign: "center" }}>
-               {error}
+          {error && answer === "" && !ingestStatus && (
+             <div className="status-msg status-error">
+               <AlertCircle size={16} /> {error}
              </div>
           )}
         </section>
 
         {answer && (
-          <section className="answer-section">
-            <div className="glass-card answer-card">
-              <h2 style={{ marginBottom: "1rem", fontSize: "1.5rem" }}>Answer</h2>
-              <div className="answer-content">{answer}</div>
+          <section className="answer-container">
+            <div className="answer-box">
+              <div className="section-title">
+                 <Sparkles size={20} className="text-primary" />
+                 <span>Answer</span>
+              </div>
+              
+              <div className="markdown-content">
+                <ReactMarkdown>{answer}</ReactMarkdown>
+              </div>
               
               {sources.length > 0 && (
-                <div className="sources-section">
-                  <h3 style={{ fontSize: "1.1rem", color: "var(--color-text-muted)", marginBottom: "0.5rem" }}>
-                    Sources
-                  </h3>
-                  <ul className="sources-list">
+                <div className="sources-grid">
                     {sources.map((source, index) => (
-                      <li key={index} className="source-item">
-                        {source}
-                      </li>
+                      <div key={index} className="source-pill">
+                        <ExternalLink size={14} style={{ marginTop: '2px', flexShrink: 0 }} />
+                        <span>{source.substring(0, 150)}...</span>
+                      </div>
                     ))}
-                  </ul>
                 </div>
               )}
             </div>
