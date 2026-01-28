@@ -8,8 +8,37 @@ import {
   Loader2, 
   Sparkles, 
   ExternalLink, 
-  AlertCircle 
+  AlertCircle,
+  ChevronDown,
+  ChevronUp
 } from "lucide-react";
+
+const SourceCard = ({ source, index }) => {
+  const [isOpen, setIsOpen] = useState(false);
+
+  return (
+    <div 
+      className={`source-card ${isOpen ? 'expanded' : ''}`}
+      onClick={() => setIsOpen(!isOpen)}
+    >
+      <div className="source-header">
+        <div className="source-title">
+          <div className="source-badge">
+             <Database size={12} />
+             <span>Context {index + 1}</span>
+          </div>
+        </div>
+        {isOpen ? <ChevronUp size={16} className="text-muted" /> : <ChevronDown size={16} className="text-muted" />}
+      </div>
+      
+      {isOpen && (
+        <div className="source-content">
+           <p>"{source}"</p>
+        </div>
+      )}
+    </div>
+  );
+};
 
 function App() {
   const [url, setUrl] = useState("");
@@ -158,13 +187,16 @@ function App() {
               </div>
               
               {sources.length > 0 && (
-                <div className="sources-grid">
-                    {sources.map((source, index) => (
-                      <div key={index} className="source-pill">
-                        <ExternalLink size={14} style={{ marginTop: '2px', flexShrink: 0 }} />
-                        <span>{source.substring(0, 150)}...</span>
-                      </div>
-                    ))}
+                <div className="sources-section">
+                    <div className="sources-header-title">
+                        <Sparkles size={16} className="text-primary" />
+                        <span>Sources Used for Verification</span>
+                    </div>
+                    <div className="sources-grid">
+                        {sources.slice(0, 2).map((source, index) => (
+                          <SourceCard key={index} source={source} index={index} />
+                        ))}
+                    </div>
                 </div>
               )}
             </div>
