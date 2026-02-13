@@ -150,7 +150,14 @@ app.get("/ask",async(req,res)=>{
     topResults=topResults.slice(0,TOP_K);
   }
 
-  const uniqueChunks=[...new Set(topResults.map(r=>r.text))];
+  const introChunk = stored.length > 0 ? stored[0] : null;
+  let finalChunks = topResults;
+  
+  if (introChunk && !topResults.find(r => r.text === introChunk.text)) {
+      finalChunks = [introChunk, ...topResults];
+  }
+
+  const uniqueChunks = [...new Set(finalChunks.map(r => r.text))];
 
   const response=await rephraseAnswer(uniqueChunks,q);
 

@@ -1,4 +1,4 @@
-function chunkText(text, chunkSize = 500, overlap = 100) {
+function chunkText(text, chunkSize = 150, overlap = 50) {
   if (!text) return [];
 
   const words = text.split(/\s+/);
